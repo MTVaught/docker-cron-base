@@ -36,7 +36,7 @@ else
 fi
 
 if [ -f "/home/$USER/run.sh" ]; then
-	exec "/home/$USER/run.sh"
+	/home/$USER/run.sh
 else
 	echo "No script to execute, doing nothing"
 fi

@@ -6,6 +6,9 @@ RUN apk update \
 
 COPY base-scripts /base-scripts
 
+ENV MY_USER=user
+ENV MY_GROUP=mygroup
+
 ENTRYPOINT ["sh", "/base-scripts/entrypoint.sh"]
 
 #CMD ["su", "-c", "bash", "-l", "user"];

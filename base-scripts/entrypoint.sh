@@ -1,7 +1,5 @@
 #!/bin/bash
 
-MY_USER=user
-MY_GROUP=mygoup
 MY_SCRIPT=/base-scripts/run.sh
 
 group_search=`getent group $APP_GID`
@@ -27,8 +25,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-if [ -f "/home/$USER/startup.sh" ]; then
-	exec "/home/$USER/startup.sh"
+if [ -f "/home/$MY_USER/startup.sh" ]; then
+	/home/$MY_USER/startup.sh
+	echo "Returned from startup hook"
 	if [ $? -ne 0 ]; then
 	    echo "Custom startup script failed, exiting"
 	    exit 1

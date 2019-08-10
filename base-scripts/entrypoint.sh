@@ -40,6 +40,10 @@ fi
 
 chown -R $MY_USER /home/$MY_USER
 
+# Remove all other crontabs
+rm /etc/crontabs/*
+
+# Add in the program's crontab
 echo "$APP_CRON export MY_USER=$MY_USER && $MY_SCRIPT" >> /etc/crontabs/$MY_USER
 
 exec "$@"

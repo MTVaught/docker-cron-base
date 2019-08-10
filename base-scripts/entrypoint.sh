@@ -27,6 +27,14 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+if [ -f "/home/$USER/startup.sh" ]; then
+	exec "/home/$USER/startup.sh"
+	if [ $? -ne 0 ]; then
+	    echo "Custom startup script failed, exiting"
+	    exit 1
+	fi
+fi
+
 chown -R $MY_USER /home/$MY_USER
 
 echo "$APP_CRON $MY_SCRIPT" >> /etc/crontabs/$MY_USER

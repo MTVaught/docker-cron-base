@@ -40,7 +40,7 @@ fi
 
 chown -R $MY_USER /home/$MY_USER
 
-echo "$APP_CRON $MY_SCRIPT" >> /etc/crontabs/$MY_USER
+echo "$APP_CRON export MY_USER=$MY_USER && $MY_SCRIPT" >> /etc/crontabs/$MY_USER
 
 exec "$@"
 

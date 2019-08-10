@@ -1,8 +1,6 @@
 #!/bin/bash
 
-MY_USER=user
-
-if [ `whoami` != "$MY_USER" ];
+if [ `whoami` != "$MY_USER" ] || [ `whoami` == "root" ];
 then
     echo "ERROR: crontab must be user-level"
     exit 1;

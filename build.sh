@@ -1,0 +1,4 @@
+#!/bin/bash
+
+docker pull alpine:latest
+docker build --tag mtvaught/cron-base:latest .

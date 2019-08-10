@@ -25,6 +25,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+if [ -d /root/staging ]; then
+	cp -R /root/staging/* /home/$MY_USER/.
+fi
+
 if [ -f "/home/$MY_USER/startup.sh" ]; then
 	/home/$MY_USER/startup.sh
 	echo "Returned from startup hook"

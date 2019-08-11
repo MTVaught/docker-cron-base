@@ -2,10 +2,10 @@
 
 MY_SCRIPT=/base-scripts/run.sh
 
-group_search=`getent group $APP_GID`
-
 deluser --remove-home $MY_USER
 delgroup $MY_GROUP
+
+group_search=`getent group $APP_GID`
 
 regex='^[^:]\{1,\}'
 #echo $group_search | grep -c $regex
@@ -20,8 +20,18 @@ fi
 
 adduser -u $APP_UID -G $my_group -D $MY_USER
 
-if [ $? -ne 0 ]; then
+MY_RC="$?"
+
+if [ $MY_RC -ne 0 ]; then
     echo "Failed to create user"
+	echo "RC: $MY_RC"
+	echo "APP_UID: $APP_UID"
+	echo "APP_GID: $APP_GID"
+	echo "my_group: $my_group"
+	echo "MY_USER: $MY_USER"
+	echo "MY_GROUP: $MY_GROUP"
+	echo "group_search": "$group_search"
+	echo "regex: $regex"
     exit 1
 fi
 

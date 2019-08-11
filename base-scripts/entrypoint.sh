@@ -51,6 +51,7 @@ echo "#!/bin/bash" >> /home/$MY_USER/cron-test.sh
 echo "$MY_CMD" >> /home/$MY_USER/cron-test.sh
 chmod 755 /home/$MY_USER/cron-test.sh
 
+echo "export TZ=$TZ" >> /etc/profile
 
 if [ 'true' == "$RUN_ON_STARTUP" ]; then
 	echo $MY_CMD

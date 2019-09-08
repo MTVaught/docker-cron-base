@@ -65,7 +65,7 @@ echo "export TZ=$TZ" >> /etc/profile
 
 if [ 'true' == "$RUN_ON_STARTUP" ]; then
 	echo $MY_CMD
-	su -c "bash -c \"$MY_CMD\"" $MY_USER
+	su -c "bash -c \"$MY_CMD\"" - $MY_USER
 fi
 
 exec "$@"

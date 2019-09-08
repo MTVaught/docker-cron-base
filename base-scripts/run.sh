@@ -6,6 +6,8 @@ then
     exit 1;
 fi
 
+umask 0000
+
 PIDFILE=$HOME/base-script.pid
 if [ -f $PIDFILE ]
 then

@@ -53,19 +53,21 @@ chown -R $MY_USER /home/$MY_USER
 # Remove all other crontabs
 rm /etc/crontabs/*
 
-MY_CMD="export MY_USER=$MY_USER && $MY_SCRIPT"
-# Add in the program's crontab
-echo "$APP_CRON $MY_CMD" >> /etc/crontabs/$MY_USER
+MY_CMD_FILE="/base-scripts/crontab-run.sh"
+echo "#!/bin/bash" > $MY_CMD_FILE
+echo "export MY_USER=$MY_USER" >> $MY_CMD_FILE
+echo "$MY_SCRIPT" >> $MY_CMD_FILE
 
-echo "#!/bin/bash" >> /home/$MY_USER/cron-test.sh
-echo "$MY_CMD" >> /home/$MY_USER/cron-test.sh
-chmod 755 /home/$MY_USER/cron-test.sh
+chmod 755 $MY_CMD_FILE
+
+# Add in the program's crontab (overwrite it)
+echo "$APP_CRON /usr/bin/flock -n /tmp/rclone.lockfile $MY_CMD_FILE" > /etc/crontabs/$MY_USER
 
 echo "export TZ=$TZ" >> /etc/profile
 
 if [ 'true' == "$RUN_ON_STARTUP" ]; then
-	echo $MY_CMD
-	su -c "bash -c \"$MY_CMD\"" - $MY_USER
+	cat $MY_CMD_FILE
+	su -c "$MY_CMD_FILE" - $MY_USER
 fi
 
 exec "$@"

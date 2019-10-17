@@ -3,7 +3,8 @@ FROM alpine:latest
 RUN apk update \
     && apk add \
         bash \
-        tzdata
+        tzdata \
+        util-linux
 
 COPY base-scripts /base-scripts
 

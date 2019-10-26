@@ -61,7 +61,7 @@ echo "$MY_SCRIPT" >> $MY_CMD_FILE
 chmod 755 $MY_CMD_FILE
 
 # Add in the program's crontab (overwrite it)
-echo "$APP_CRON /usr/bin/flock -n /tmp/rclone.lockfile $MY_CMD_FILE" > /etc/crontabs/$MY_USER
+echo "$APP_CRON /usr/bin/flock -n /tmp/my-cron.lockfile $MY_CMD_FILE" > /etc/crontabs/$MY_USER
 
 echo "export TZ=$TZ" >> /etc/profile
 

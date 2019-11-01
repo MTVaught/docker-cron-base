@@ -11,6 +11,8 @@ umask 0000
 # Using flock to prevent duplicate operations
 /home/$USER/run.sh
 
+echo "cronjob finished"
+
 #PIDFILE=$HOME/base-script.pid
 #if [ -f $PIDFILE ]
 #then

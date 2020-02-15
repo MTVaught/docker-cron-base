@@ -4,7 +4,7 @@ docker run  \
     --env APP_UID=`id -u` \
     --env APP_GID=`id -g` \
     --env APP_CRON='* * * * *' \
-    --env RUN_ON_STARTUP='true' \
+    --env APP_RUN_ON_STARTUP='true' \
     --env DEBUG="1" \
     --env USER_ENV_ONE='var1' \
     --env USER_ENV_TWO='var2' \

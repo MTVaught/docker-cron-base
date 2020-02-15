@@ -77,6 +77,7 @@ fi
 
 # Execute (if it exists) the startup hook script (from the user's HOME dir)
 if [ -f "$APP_USER_HOME/$APP_STARTUP_SCRIPT" ]; then
+	$APP_USER_HOME/$APP_STARTUP_SCRIPT
 	echo "Returned from startup hook"
 	if [ $? -ne 0 ]; then
 	    echo "Custom startup script failed, exiting"

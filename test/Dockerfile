@@ -1,4 +1,4 @@
-FROM mtvaught/cron-base:latest
+FROM cron-base:latest
 
 RUN apk update \
     && apk add \

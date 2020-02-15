@@ -15,6 +15,10 @@ These are optional:
 Any ENV matching this pattern will be set in the USER's ENV when the cronjob runs
     USER_ENV_*
 
+These will be defined by the base image at runtime:
+    APP_USER
+    APP_GROUP
+
 # Staging files:
 Any files located in 
     /root/staging/*
@@ -24,7 +28,7 @@ Will be copied into the $HOME directory on container start
 # Startup and App hooks:
 
 This file will be executed at startup (as root)
-    /home/staging/startup.sh
+    /root/staging/startup.sh
 
 This file will be executed by the cronjob (as user)
-    /home/staging/run.sh
+    /root/staging/run.sh

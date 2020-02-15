@@ -1,44 +1,82 @@
 #!/bin/bash
 
-MY_SCRIPT=/base-scripts/run.sh
+# Define script variables
+#USER_RUN_WRAPPER_SCRIPT="/base-scripts/run.sh" # Defined in Dockerfile
+CRON_RUN_SCRIPT="/base-scripts/crontab-run.sh" # Generated script to set the ENV and run
+											   # the wrapper
+APP_USER_HOME="/home/$APP_USER"
+APP_STARTUP_SCRIPT="startup.sh"
 
-deluser --remove-home $MY_USER
-delgroup $MY_GROUP
+# Delete any existing users and create one with correct UID+GID
+# Silence the output - errors only mean there wasn't a user or group to remove
+deluser --remove-home $APP_USER
+delgroup $APP_GROUP
 
+echo ""
+
+# Determine if there is an existing group with the required GID
 group_search=`getent group $APP_GID`
-
 regex='^[^:]\{1,\}'
-
 if [ `echo $group_search | grep -c $regex` == 1 ]; then
-    my_group=`echo $group_search | grep -o $regex`
+	# An existing group was found. Reuse it.
+    export APP_GROUP=`echo $group_search | grep -o $regex`
 else
-    my_group=$MY_GROUP
-    addgroup -g $APP_GID $my_group
+	# No existing group. Create one.
+    addgroup -g $APP_GID $APP_GROUP
 fi
 
-adduser -u $APP_UID -G $my_group -D $MY_USER
+# Create the user with the specified ID and previously (created/found) group
+adduser -u $APP_UID -G $APP_GROUP -D $APP_USER
 
-MY_RC="$?"
+MY_RC="$?" # Did it work?
 
 if [ $MY_RC -ne 0 ]; then
     echo "Failed to create user"
 	echo "RC: $MY_RC"
 	echo "APP_UID: $APP_UID"
 	echo "APP_GID: $APP_GID"
-	echo "my_group: $my_group"
-	echo "MY_USER: $MY_USER"
-	echo "MY_GROUP: $MY_GROUP"
+	echo "APP_USER: $APP_USER"
+	echo "APP_GROUP: $APP_GROUP"
 	echo "group_search": "$group_search"
 	echo "regex: $regex"
     exit 1
 fi
 
-if [ -d /root/staging ]; then
-	cp -R /root/staging/* /home/$MY_USER/.
+# Set the timezone for the user
+echo "export TZ=$TZ" >> /etc/profile
+
+# Start building the script that cron will execute
+echo "#!/bin/bash" > $CRON_RUN_SCRIPT
+
+# Set ENV variables
+echo "export APP_USER=$APP_USER" >> $CRON_RUN_SCRIPT
+echo "export APP_GROUP=$APP_GROUP" >> $CRON_RUN_SCRIPT
+echo "export APP_UMASK=$APP_UMASK" >> $CRON_RUN_SCRIPT
+
+# Set USER ENV variables
+regex='^USER_ENV_[^=]*' # todo: define this in a variable?
+if [ `printenv | grep -c $regex` != 1 ]; then
+	ENV_ARRAY=(`printenv | grep -o $regex`)
+
+	for ENV in ${ENV_ARRAY[@]}
+	do
+		echo "export $ENV=`printenv $ENV`" >> $CRON_RUN_SCRIPT
+	done
 fi
 
-if [ -f "/home/$MY_USER/startup.sh" ]; then
-	/home/$MY_USER/startup.sh
+# Add the script as the last command
+echo "$APP_RUN_WRAPPER_SCRIPT" >> $CRON_RUN_SCRIPT
+
+# Make it executable
+chmod 755 $CRON_RUN_SCRIPT
+
+# Copy the contents of the staging dir to the user's home directory
+if [ -d $APP_STAGING_DIR ]; then
+	cp -R $APP_STAGING_DIR/* $APP_USER_HOME/.
+fi
+
+# Execute (if it exists) the startup hook script (from the user's HOME dir)
+if [ -f "$APP_USER_HOME/$APP_STARTUP_SCRIPT" ]; then
 	echo "Returned from startup hook"
 	if [ $? -ne 0 ]; then
 	    echo "Custom startup script failed, exiting"
@@ -46,27 +84,24 @@ if [ -f "/home/$MY_USER/startup.sh" ]; then
 	fi
 fi
 
-chown -R $MY_USER /home/$MY_USER
+chown -R $APP_USER $APP_USER_HOME
 
 # Remove all other crontabs
 rm /etc/crontabs/*
 
-MY_CMD_FILE="/base-scripts/crontab-run.sh"
-echo "#!/bin/bash" > $MY_CMD_FILE
-echo "export MY_USER=$MY_USER" >> $MY_CMD_FILE
-echo "$MY_SCRIPT" >> $MY_CMD_FILE
-
-chmod 755 $MY_CMD_FILE
-
-# Add in the program's crontab (overwrite it)
-echo "$APP_CRON /usr/bin/flock -n /tmp/my-cron.lockfile $MY_CMD_FILE" > /etc/crontabs/$MY_USER
-
-echo "export TZ=$TZ" >> /etc/profile
-
-if [ 'true' == "$RUN_ON_STARTUP" ]; then
-	cat $MY_CMD_FILE
-	su -c "$MY_CMD_FILE" - $MY_USER
+if [ ! -z ${DEBUG+x} ]; then
+    echo "Adding generated script to crontab:"
+    echo "======================"
+    cat $CRON_RUN_SCRIPT
+    echo "======================"
 fi
 
-exec "$@"
+# Add in the program's crontab (overwrite it)
+echo "$APP_CRON /usr/bin/flock -n /tmp/my-cron.lockfile $CRON_RUN_SCRIPT" > /etc/crontabs/$APP_USER
 
+if [ 'true' == "$RUN_ON_STARTUP" ]; then
+	su -c "$CRON_RUN_SCRIPT" - $APP_USER
+fi
+
+# Yield back
+exec "$@"

@@ -8,10 +8,14 @@ RUN apk update \
 
 COPY base-scripts /base-scripts
 
-ENV MY_USER=user
-ENV MY_GROUP=mygroup
+ENV APP_USER=user
+ENV APP_GROUP=mygroup
+ENV APP_UMASK=0000
+ENV APP_RUN_WRAPPER_SCRIPT="/base-scripts/run.sh"
+ENV APP_STAGING_DIR=/root/staging
 
-ENTRYPOINT ["sh", "/base-scripts/entrypoint.sh"]
+ENTRYPOINT ["bash", "/base-scripts/entrypoint.sh"]
 
-#CMD ["su", "-c", "bash", "-l", "user"];
+#CMD ["bash" , "-l"] # root debugging
+#CMD ["su", "-c", "bash", "-l", "user"]; # user debugging
 CMD ["crond", "-f" , "-d", "8", "> /proc/1/fd/1", "2> /proc/1/fd/2"]

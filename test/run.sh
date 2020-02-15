@@ -7,6 +7,4 @@ echo "Running program"
 #date
 umask
 
-touch test
-mkdir testdir
-ls -l
+printenv

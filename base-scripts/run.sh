@@ -1,49 +1,23 @@
 #!/bin/bash
 
-if [ `whoami` != "$MY_USER" ] || [ `whoami` == "root" ];
+if [ `whoami` == "root" ];
 then
-    echo "ERROR: crontab must be user-level"
+    echo "ERROR: crontab shall not be run as root"
     exit 1;
 fi
 
-umask 0000
+
+if [ `whoami` != "$APP_USER" ];
+then
+    echo "Detected user as `whoami`"
+    echo "ERROR: crontab must be run as \$APP_USER=$APP_USER"
+    exit 1;
+fi
+
+echo "Setting umask to $APP_UMASK"
+umask $APP_UMASK
 
 # Using flock to prevent duplicate operations
 /home/$USER/run.sh
 
 echo "cronjob finished"
-
-#PIDFILE=$HOME/base-script.pid
-#if [ -f $PIDFILE ]
-#then
-#  PID=$(cat $PIDFILE)
-#  ps -p $PID > /dev/null 2>&1
-#  if [ $? -eq 0 ]
-#  then
-#    echo "Process already running"
-#    exit 1
-#  else
-#    ## Process not found assume not running
-#    echo $$ > $PIDFILE
-#    if [ $? -ne 0 ]
-#    then
-#      echo "Could not create PID file"
-#      exit 1
-#    fi
-#  fi
-#else
-#  echo $$ > $PIDFILE
-#  if [ $? -ne 0 ]
-#  then
-#    echo "Could not create PID file"
-#    exit 1
-#  fi
-#fi
-#
-#if [ -f "/home/$USER/run.sh" ]; then
-#	/home/$USER/run.sh
-#else
-#	echo "No script to execute, doing nothing"
-#fi
-#
-#rm $PIDFILE

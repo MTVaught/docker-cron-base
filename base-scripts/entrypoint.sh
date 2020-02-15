@@ -99,7 +99,7 @@ fi
 # Add in the program's crontab (overwrite it)
 echo "$APP_CRON /usr/bin/flock -n /tmp/my-cron.lockfile $CRON_RUN_SCRIPT" > /etc/crontabs/$APP_USER
 
-if [ 'true' == "$RUN_ON_STARTUP" ]; then
+if [ 'true' == "$APP_RUN_ON_STARTUP" ]; then
 	su -c "$CRON_RUN_SCRIPT" - $APP_USER
 fi
 

@@ -55,7 +55,7 @@ echo "export APP_UMASK=$APP_UMASK" >> $CRON_RUN_SCRIPT
 
 # Set USER ENV variables
 regex='^USER_ENV_[^=]*' # todo: define this in a variable?
-if [ `printenv | grep -c $regex` != 1 ]; then
+if [ `printenv | grep -c $regex` != 0 ]; then
 	ENV_ARRAY=(`printenv | grep -o $regex`)
 
 	for ENV in ${ENV_ARRAY[@]}

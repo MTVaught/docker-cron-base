@@ -8,8 +8,6 @@ delgroup $MY_GROUP
 group_search=`getent group $APP_GID`
 
 regex='^[^:]\{1,\}'
-#echo $group_search | grep -c $regex
-#echo $group_search | grep -o $regex
 
 if [ `echo $group_search | grep -c $regex` == 1 ]; then
     my_group=`echo $group_search | grep -o $regex`
